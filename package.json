@@ -1,0 +1,33 @@
+{
+  "name": "encurtadorlinkback",
+  "version": "1.0.0",
+  "description": "LINK: https://utfpr-cm.notion.site/encurtador-url",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon src/server.js",
+    "start": "node src/server.js",
+    "prisma": "prisma"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/OttGod12/encurtadorLinkBack.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/OttGod12/encurtadorLinkBack/issues"
+  },
+  "homepage": "https://github.com/OttGod12/encurtadorLinkBack#readme",
+  "dependencies": {
+    "@fastify/cors": "^11.1.0",
+    "@prisma/client": "^6.17.1",
+    "fastify": "^5.6.1",
+    "fastify-env": "^2.1.1"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10",
+    "prisma": "^6.17.1"
+  }
+}
