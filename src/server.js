@@ -1,30 +1,18 @@
 // src/server.js
 
 import Fastify from "fastify";
-import cors from "@fastify/cors";
-import { PrismaClient } from "@prisma/client";
+import { urlRoutes } from "./routes/urlRoutes.js";
 
-const prisma = new PrismaClient();
-const app = Fastify();
+const app = Fastify({ logger: true });
 
-app.register(cors, { origin: true });
-
-app.get("/", async (req, reply) => {
-  reply.send({ message: "API Encurtador de URL rodando " });
-});
-
-// Exemplo de rota simples
-app.get("/urls", async (req, reply) => {
-  const urls = await prisma.uRL.findMany();
-  reply.send(urls);
-});
+app.register(urlRoutes);
 
 const start = async () => {
   try {
-    await app.listen({ port: process.env.PORT || 3333, host: "0.0.0.0" });
-    console.log("Servidor rodando em http://localhost:3333");
+    await app.listen({ port: 3333 });
+    console.log("🚀 Servidor rodando em http://localhost:3333");
   } catch (err) {
-    console.error(err);
+    app.log.error(err);
     process.exit(1);
   }
 };
