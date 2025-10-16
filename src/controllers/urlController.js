@@ -1,51 +1,24 @@
-// src/controllers/urlController.js
-
-import { prisma } from "../utils/prismaClient.js";
+import urlModel from "../models/urlModel.js";
 import crypto from "crypto";
 
-// Criar URL encurtada
-export async function createUrl(request, reply) {
-  const { originalUrl } = request.body;
+const urlController = {
+  async create(req, reply) {
+    const { originalUrl, userId } = req.body;
+    // O modelo deve gerar o shortUrl. O controller não precisa mais do crypto.
+    const { data, error } = await urlModel.create(originalUrl, userId);
+    if (error) return reply.status(400).send({ error: error.message });
 
-  if (!originalUrl) {
-    return reply.code(400).send({ error: "URL original é obrigatória." });
-  }
+    // O retorno deve usar os dados do modelo, que já inclui o shortUrl.
+    return reply.send({ message: "URL encurtada com sucesso!", shortUrl: data.short_url, data });
+  },
 
-  const shortUrl = crypto.randomBytes(3).toString("hex"); // gera um código aleatório, tipo "a3f9c1"
+  async redirect(req, reply) {
+    const { shortUrl } = req.params;
+    const { data, error } = await urlModel.findByShortUrl(shortUrl);
 
-  const newUrl = await prisma.url.create({
-    data: { originalUrl, shortUrl },
-  });
+    if (error || !data) return reply.status(404).send({ message: "URL não encontrada" });
+    reply.redirect(data.original_url);
+  },
+};
 
-  return reply.code(201).send(newUrl);
-}
-
-// Listar todas as URLs
-export async function getAllUrls(request, reply) {
-  const urls = await prisma.url.findMany();
-  return reply.send(urls);
-}
-
-// Redirecionar código curto para a URL original
-export async function redirectUrl(request, reply) {
-  const { shortUrl } = request.params;
-  const url = await prisma.url.findUnique({ where: { shortUrl } });
-
-  if (!url) {
-    return reply.code(404).send({ error: "URL não encontrada" });
-  }
-
-  // redireciona
-  reply.redirect(url.originalUrl);
-}
-
-// Deletar uma URL
-export async function deleteUrl(request, reply) {
-  const { id } = request.params;
-
-  await prisma.url.delete({
-    where: { id: Number(id) },
-  });
-
-  return reply.send({ message: "URL excluída com sucesso" });
-}
+export default urlController;
