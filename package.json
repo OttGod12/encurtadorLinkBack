@@ -9,10 +9,11 @@
     "migrate": "drizzle-kit push"
   },
   "dependencies": {
-    "fastify": "^4.27.2",
-    "pg": "^8.13.0",
-    "dotenv": "^16.4.5",
-    "drizzle-orm": "^0.30.6"
+    "@fastify/cors": "^11.1.0",
+    "dotenv": "^16.6.1",
+    "drizzle-orm": "^0.30.10",
+    "fastify": "^5.6.1",
+    "pg": "^8.16.3"
   },
   "devDependencies": {
     "drizzle-kit": "^0.26.2"
