@@ -62,21 +62,7 @@ async function createPool() {
   }
 }
 
-let pool;
-(async () => {
-  pool = await createPool();
-
-  // Teste de conexão rápido
-  try {
-    const client = await pool.connect();
-    client.release();
-    console.log("Conexão com o DB estabelecida com sucesso");
-  } catch (err) {
-    console.error("Erro ao conectar ao DB:", err.message || err);
-    // não throwar aqui para não derrubar o processo caso queira lidar externamente;
-    // porém em produção você pode escolher process.exit(1)
-  }
-})();
+const pool = await createPool();
 
 export const db = drizzle(pool);
 export { pool };
