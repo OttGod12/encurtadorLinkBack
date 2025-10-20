@@ -1,22 +1,31 @@
 // src/db/drizzle.js
-import 'dotenv/config';
-import postgres from 'postgres';
-import { drizzle } from 'drizzle-orm/postgres-js';
+import dotenv from 'dotenv';
+dotenv.config();
 
-// 🔹 Verifica se a variável está definida
+import { Pool } from 'pg';
+import { drizzle } from 'drizzle-orm/node-postgres';
+
 if (!process.env.DATABASE_URL) {
-  throw new Error(' DATABASE_URL não encontrada no arquivo .env');
+  throw new Error('DATABASE_URL não encontrada no .env');
 }
 
-// 🔹 Cria o cliente postgres-js
-const client = postgres(process.env.DATABASE_URL, {
-  ssl: 'require', // Necessário para Supabase
-  max: 10,        // Limite de conexões
-  onnotice: () => {}, // Evita warnings no console
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  // Supabase/Render/etc: SSL costuma ser necessário
+  ssl: { rejectUnauthorized: false },
+  max: 10,
 });
 
-//  Cria a instância do drizzle
-export const db = drizzle(client);
+// Teste rápido de conexão (não bloqueante)
+(async () => {
+  try {
+    const client = await pool.connect();
+    client.release();
+    console.log('Conexão com o banco bem-sucedida');
+  } catch (err) {
+    console.error('Erro ao conectar no banco de dados:', err?.message || err);
+  }
+})();
 
-//  (Opcional) Exporta o client se quiser usar queries diretas
-export { client };
+export const db = drizzle(pool);
+export { pool };
