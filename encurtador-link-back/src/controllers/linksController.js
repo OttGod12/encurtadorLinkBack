@@ -9,6 +9,7 @@ import {
   validateRedirectCode
 } from "../utils/validators.js";
 
+// Controlador para gerenciar links
 export const linksController = {
   async create(request, reply) {
     try {
@@ -26,6 +27,7 @@ export const linksController = {
     }
   },
 
+  // Listagem de todos os links
   async list(request, reply) {
     try {
       const result = await linksService.getAllLinks();
@@ -36,6 +38,7 @@ export const linksController = {
     }
   },
 
+  // Atualização de um link existente
   async update(request, reply) {
     try {
       const { id } = request.params;
@@ -55,6 +58,7 @@ export const linksController = {
     }
   },
 
+  // Remoção de um link
   async remove(request, reply) {
     try {
       const { id } = request.params;
@@ -68,6 +72,7 @@ export const linksController = {
     }
   },
 
+  // Redirecionamento baseado no código curto
   async redirect(request, reply) {
     try {
       const { code } = request.params;
