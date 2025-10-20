@@ -78,5 +78,5 @@ let pool;
   }
 })();
 
-export const db = drizzle(() => pool); // drizzle aceita função que retorna pool ou pool diretamente
+export const db = drizzle(pool);
 export { pool };
