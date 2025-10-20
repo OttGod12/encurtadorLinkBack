@@ -1,3 +1,6 @@
+// src/db/schema.js
+// Definição da tabela `links` usando Drizzle (Postgres)
+
 import { pgTable, serial, text, varchar, integer, timestamp } from "drizzle-orm/pg-core";
 
 export const links = pgTable("links", {
