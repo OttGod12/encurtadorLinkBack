@@ -17,7 +17,7 @@ app.register(linksRoutes);
 // Start do servidor com host/port configuráveis via .env
 app.listen({
   port: process.env.PORT || 3333,
-  host: process.env.HOST || "0.0.0.0" // <- garante compatibilidade com o Render
+  host: "0.0.0.0" // <- garante compatibilidade com o Render
  }, (err, address) => {
   if (err) {
     console.error("Erro ao iniciar o servidor:",err);
