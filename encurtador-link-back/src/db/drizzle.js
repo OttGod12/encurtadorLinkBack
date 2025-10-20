@@ -3,6 +3,10 @@
 import dotenv from "dotenv";
 dotenv.config();
 
+import dns from "dns";
+const {setDefaultResultOrder } = dns;
+setDefaultResultOrder("ipv4first");
+
 import { Pool } from "pg";
 import { drizzle } from "drizzle-orm/node-postgres";
 
