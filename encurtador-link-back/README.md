@@ -52,7 +52,7 @@ npm install
 Crie um arquivo .env na raiz do projeto com o seguinte conteúdo:
 
 env
-DATABASE_URL=postgresql://postgres.lvpkoqdvsqiezlbyniov:encurtadorSenha@aws-1-sa-east-1.pooler.supabase.com:5432/postgres
+DATABASE_URL=postgresql://usuario:senha@host:porta/nome_do_banco
 
 DB_POOL_MAX=6
 
