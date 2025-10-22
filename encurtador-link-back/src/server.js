@@ -15,7 +15,11 @@ const HOST = process.env.HOST || "0.0.0.0";
 const app = Fastify({ logger: true,});
 
 // Habilita CORS para desenvolvimento (localhost e Render)
-app.register(cors, { origin: "*" });
+app.register(fastifyCors, {
+  origin: true, // permite qualquer origin
+  methods: ["GET","POST","PUT","PATCH","DELETE","OPTIONS"],
+  allowedHeaders: ["Content-Type","Authorization"],
+});
 
 // Registra as rotas do módulo de links
 app.register(linksRoutes);
