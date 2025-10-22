@@ -79,7 +79,9 @@ export const linksController = {
       await linksService.aumentarClicks(link.id);
 
       // redireciona para a url original
-      return reply.redirect(302, link.url_original);
+      // redireciona para a url original
+    return reply.redirect(link.url_original);
+
     } catch (err) {
       request.log.error(err);
       return reply.code(500).send({ error: "Erro no redirecionamento", detail: err?.message || String(err) });
