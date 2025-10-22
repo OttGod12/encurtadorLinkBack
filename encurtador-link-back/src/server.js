@@ -5,7 +5,7 @@
  
 
 import Fastify from "fastify";
-import cors from "@fastify/cors";
+import fastifyCors from "@fastify/cors";
 import { linksRoutes } from "./routes/linksRoutes.js";
 import "dotenv/config";
 
