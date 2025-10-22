@@ -1,7 +1,3 @@
-// src/utils/validators.js
-// Validações e sanitizações reutilizáveis para o projeto
-
-// Valida URL usando a API nativa URL e obrigando http/https
 export function isValidUrl(value) {
   if (typeof value !== "string") return false;
   try {
@@ -12,31 +8,26 @@ export function isValidUrl(value) {
   }
 }
 
-// Retorna true se for string não vazia após trim
 export function isNonEmptyString(value) {
   return typeof value === "string" && value.trim().length > 0;
 }
 
-// Remove espaços desnecessários e normaliza (retorna string vazia se não for string)
 export function sanitizeString(value) {
   if (typeof value !== "string") return "";
   return value.trim();
 }
 
-// Valida id numérico positivo (aceita string contendo número)
 export function isValidId(value) {
   const n = Number(value);
   return Number.isInteger(n) && n > 0;
 }
 
-// Valida formato do código curto (alfanumérico, até maxLength)
 export function isAlphaNumericCode(value, maxLength = 10) {
   if (typeof value !== "string") return false;
   const re = new RegExp(`^[A-Za-z0-9]{1,${maxLength}}$`);
   return re.test(value);
 }
 
-// Validação específica para criação de link
 export function validateCreatePayload(body) {
   const errors = [];
 
@@ -61,7 +52,6 @@ export function validateCreatePayload(body) {
   return { valid: errors.length === 0, errors };
 }
 
-// Validação para update (pelo menos um campo e, se existir, URL válida)
 export function validateUpdatePayload(body) {
   const errors = [];
 
@@ -92,9 +82,8 @@ export function validateUpdatePayload(body) {
   return { valid: errors.length === 0, errors };
 }
 
-// Validação simples para o código de redirecionamento
 export function validateRedirectCode(code) {
-  const maxLength = 10; // deve combinar com schema.js
+  const maxLength = 10;
   if (!isNonEmptyString(code)) return { valid: false, error: "Código ausente" };
   if (!isAlphaNumericCode(code, maxLength)) return { valid: false, error: "Código inválido" };
   return { valid: true };

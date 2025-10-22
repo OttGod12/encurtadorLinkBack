@@ -1,83 +1,59 @@
-// src/services/linksService.js
-// Lógica de negócio: gera código, garante unicidade, persiste no DB e retorna dados formatados
-
 import { db } from "../db/drizzle.js";
 import { links } from "../db/schema.js";
 import { generateCode } from "../utils/generateCode.js";
 import { eq, sql } from "drizzle-orm";
 
+const BASE_URL = (process.env.BASE_URL || "http://localhost:3333").replace(/\/+$/, ""); 
 
-const BASE_URL = process.env.BASE_URL || "http://localhost:3333";
-
-
-// Cria um link garantindo que o código seja único
 export const createLink = async ({ legenda, url_original }) => {
-// Gera um código e verifica se já existe no banco; repete até achar um livre
-let codigo;
-let attempts = 0;
-while (true) {
-attempts++;
-if (attempts > 10) throw new Error("Não foi possível gerar um código único");
+  let codigo;
+  let attempts = 0;
+  while (true) {
+    attempts++;
+    if (attempts > 20) throw new Error("Não foi possível gerar um código único depois de várias tentativas");
 
+    codigo = generateCode();
 
-codigo = generateCode();
+    const found = await db.select().from(links).where(eq(links.codigo, codigo));
+    if (!found || found.length === 0) break;
+  }
 
+  const inserted = await db.insert(links).values({ legenda, url_original, codigo }).returning();
+  const newLink = Array.isArray(inserted) && inserted.length > 0 ? inserted[0] : inserted;
 
-const [found] = await db.select().from(links).where(eq(links.codigo, codigo));
-if (!found) break; // código livre
-}
-
-
-const [newLink] = await db
-.insert(links)
-.values({ legenda, url_original, codigo })
-.returning();
-
-
-newLink.link_curto = `${BASE_URL}/${newLink.codigo}`;
-return newLink;
+  // Adiciona campo link_curto para conveniência na resposta
+  newLink.link_curto = `${BASE_URL}/${newLink.codigo}`;
+  return newLink;
 };
 
-
-// Retorna todos os links com campo link_curto
 export const getAllLinks = async () => {
-const result = await db.select().from(links).orderBy(links.id);
-return result.map(link => ({
-...link,
-link_curto: `${BASE_URL}/${link.codigo}`,
-}));
+  const result = await db.select().from(links).orderBy(links.id);
+  return result.map(link => ({
+    ...link,
+    link_curto: `${BASE_URL}/${link.codigo}`,
+  }));
 };
 
-
-// Atualiza legenda e/ou url_original
 export const updateLink = async (id, { legenda, url_original }) => {
-const toSet = {};
-if (legenda !== null && legenda !== undefined) toSet.legenda = legenda;
-if (url_original !== null && url_original !== undefined) toSet.url_original = url_original;
+  const toSet = {};
+  if (legenda !== null && legenda !== undefined) toSet.legenda = legenda;
+  if (url_original !== null && url_original !== undefined) toSet.url_original = url_original;
 
+  if (Object.keys(toSet).length === 0) return;
 
-if (Object.keys(toSet).length === 0) return; // nada a atualizar
-
-
-await db.update(links).set(toSet).where(eq(links.id, Number(id)));
+  await db.update(links).set(toSet).where(eq(links.id, Number(id)));
 };
 
-
-// Deleta link permanentemente
 export const deleteLink = async (id) => {
-await db.delete(links).where(eq(links.id, Number(id)));
+  await db.delete(links).where(eq(links.id, Number(id)));
 };
 
-
-// Busca link pelo código curto
 export const getLinkByCode = async (code) => {
-const [link] = await db.select().from(links).where(eq(links.codigo, code));
-return link;
+  const [link] = await db.select().from(links).where(eq(links.codigo, code));
+  return link;
 };
 
-
-// Incrementa contador de cliques de forma segura usando SQL
 export const aumentarClicks = async (id) => {
-// usando sql para somar 1 ao campo cliques
-await db.execute(sql`UPDATE links SET cliques = cliques + 1 WHERE id = ${id}`);
+  // operação segura para incrementar contador (usa sql para atualizar em 1 operação)
+  await db.execute(sql`UPDATE links SET cliques = cliques + 1 WHERE id = ${Number(id)}`);
 };

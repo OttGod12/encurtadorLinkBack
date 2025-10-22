@@ -1,5 +1,3 @@
-// src/controllers/linksController.js
-
 import * as linksService from "../services/linksService.js";
 import {
   isValidId,
@@ -9,7 +7,6 @@ import {
   validateRedirectCode
 } from "../utils/validators.js";
 
-// Controlador para gerenciar links
 export const linksController = {
   async create(request, reply) {
     try {
@@ -23,22 +20,20 @@ export const linksController = {
       return reply.code(201).send(newLink);
     } catch (err) {
       request.log.error(err);
-      return reply.code(500).send({ error: "Erro ao criar link", detail: err.message });
+      return reply.code(500).send({ error: "Erro ao criar link", detail: err?.message || String(err) });
     }
   },
 
-  // Listagem de todos os links
   async list(request, reply) {
     try {
       const result = await linksService.getAllLinks();
-      return reply.send(result);
+      return reply.code(200).send(result);
     } catch (err) {
       request.log.error(err);
-      return reply.code(500).send({ error: "Erro ao listar links" });
+      return reply.code(500).send({ error: "Erro ao listar links", detail: err?.message || String(err) });
     }
   },
 
-  // Atualização de um link existente
   async update(request, reply) {
     try {
       const { id } = request.params;
@@ -51,28 +46,26 @@ export const linksController = {
       const url_original = request.body.url_original !== undefined ? sanitizeString(request.body.url_original) : undefined;
 
       await linksService.updateLink(id, { legenda, url_original });
-      return reply.send({ message: "Link atualizado com sucesso!" });
+      return reply.code(200).send({ message: "Link atualizado com sucesso!" });
     } catch (err) {
       request.log.error(err);
-      return reply.code(500).send({ error: "Erro ao atualizar link" });
+      return reply.code(500).send({ error: "Erro ao atualizar link", detail: err?.message || String(err) });
     }
   },
 
-  // Remoção de um link
   async remove(request, reply) {
     try {
       const { id } = request.params;
       if (!isValidId(id)) return reply.code(400).send({ error: "ID inválido" });
 
       await linksService.deleteLink(id);
-      return reply.send({ message: "Link removido com sucesso!" });
+      return reply.code(200).send({ message: "Link removido com sucesso!" });
     } catch (err) {
       request.log.error(err);
-      return reply.code(500).send({ error: "Erro ao remover link" });
+      return reply.code(500).send({ error: "Erro ao remover link", detail: err?.message || String(err) });
     }
   },
 
-  // Redirecionamento baseado no código curto
   async redirect(request, reply) {
     try {
       const { code } = request.params;
@@ -82,11 +75,14 @@ export const linksController = {
       const link = await linksService.getLinkByCode(code);
       if (!link) return reply.code(404).send({ error: "Link não encontrado" });
 
+      // incrementa cliques (não bloqueante) - aguarda para garantir consistência ACID
       await linksService.aumentarClicks(link.id);
+
+      // redireciona para a url original
       return reply.redirect(302, link.url_original);
     } catch (err) {
       request.log.error(err);
-      return reply.code(500).send({ error: "Erro no redirecionamento" });
+      return reply.code(500).send({ error: "Erro no redirecionamento", detail: err?.message || String(err) });
     }
   }
 };
